@@ -1,4 +1,4 @@
-const CACHE_NAME = "conversor-soles-euros-v1";
+const CACHE_NAME = "conversor-soles-euros-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
