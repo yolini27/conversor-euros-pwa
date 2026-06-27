@@ -203,7 +203,14 @@
         line-height: 1.35;
       }
 
-      .refresh {
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      .refresh,
+      .clear {
         min-height: 42px;
         border: 1px solid rgba(27, 117, 98, 0.25);
         border-radius: 8px;
@@ -212,6 +219,13 @@
         font: inherit;
         font-weight: 800;
         cursor: pointer;
+      }
+
+      .clear {
+        min-width: 82px;
+        border-color: rgba(108, 75, 42, 0.22);
+        background: #fff;
+        color: var(--brand-dark);
       }
 
       .refresh:disabled {
@@ -249,9 +263,9 @@
         <form class="converter" autocomplete="off">
           <div class="row">
             <div class="field">
-              <label id="fromLabel" for="fromAmount">Soles Peruanos</label>
+              <label id="fromLabel" for="fromAmount">Euros</label>
               <div class="money-input">
-                <span class="prefix" id="fromPrefix">S/</span>
+                <span class="prefix" id="fromPrefix">EUR</span>
                 <input id="fromAmount" inputmode="decimal" type="text" placeholder="0.00" aria-labelledby="fromLabel">
               </div>
             </div>
@@ -266,9 +280,9 @@
             </div>
 
             <div class="field">
-              <label id="toLabel" for="toAmount">Euros</label>
+              <label id="toLabel" for="toAmount">Soles Peruanos</label>
               <div class="money-input">
-                <span class="prefix" id="toPrefix">EUR</span>
+                <span class="prefix" id="toPrefix">S/</span>
                 <input id="toAmount" inputmode="decimal" type="text" placeholder="0.00" aria-labelledby="toLabel">
               </div>
             </div>
@@ -280,7 +294,10 @@
               <strong id="rateText">1 EUR = S/ 4.10</strong>
             </div>
             <p class="status" id="statusText">Usando tipo de respaldo hasta actualizar.</p>
-            <button class="refresh" type="button" id="refreshButton">Actualizar tipo de cambio</button>
+            <div class="actions">
+              <button class="refresh" type="button" id="refreshButton">Actualizar tipo de cambio</button>
+              <button class="clear" type="button" id="clearButton">Clean</button>
+            </div>
           </div>
         </form>
 
@@ -298,8 +315,8 @@
       };
 
       const state = {
-        from: "PEN",
-        to: "EUR",
+        from: "EUR",
+        to: "PEN",
         rate: FALLBACK_RATE,
         source: "respaldo"
       };
@@ -312,6 +329,7 @@
         fromPrefix: document.querySelector("#fromPrefix"),
         toPrefix: document.querySelector("#toPrefix"),
         swapButton: document.querySelector("#swapButton"),
+        clearButton: document.querySelector("#clearButton"),
         refreshButton: document.querySelector("#refreshButton"),
         rateText: document.querySelector("#rateText"),
         statusText: document.querySelector("#statusText")
@@ -425,6 +443,12 @@
         convertFromInput();
       }
 
+      function clearAmounts() {
+        els.fromAmount.value = "";
+        els.toAmount.value = "";
+        els.fromAmount.focus();
+      }
+
       function registerServiceWorker() {
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("./service-worker.js").catch(() => {});
@@ -440,6 +464,7 @@
       els.fromAmount.addEventListener("input", convertFromInput);
       els.toAmount.addEventListener("input", convertToInput);
       els.swapButton.addEventListener("click", swapCurrencies);
+      els.clearButton.addEventListener("click", clearAmounts);
       els.refreshButton.addEventListener("click", fetchRate);
     </script>
   </body>
