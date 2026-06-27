@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#6C4B2A">
+    <meta name="description" content="Conversor instalable de Soles Peruanos a Euros con funcionamiento offline.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Conversor">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="manifest" href="./manifest.json">
+    <title>Conversor Soles Euros</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f4ef;
+        --panel: #fffaf1;
+        --ink: #231b14;
+        --muted: #766b5c;
+        --brand: #6c4b2a;
+        --brand-dark: #4f351c;
+        --accent: #1b7562;
+        --line: #ded4c5;
+        --shadow: 0 20px 50px rgba(58, 40, 23, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--bg);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 12% 12%, rgba(27, 117, 98, 0.18), transparent 24rem),
+          linear-gradient(160deg, #f6f4ef 0%, #efe4d4 100%);
+        color: var(--ink);
+      }
+
+      main {
+        display: grid;
+        min-height: 100vh;
+        padding: max(18px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+        place-items: center;
+      }
+
+      .app {
+        width: min(100%, 430px);
+      }
+
+      .header {
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--brand);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.15rem, 13vw, 3.75rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 28rem;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.45;
+      }
+
+      .converter {
+        padding: 18px;
+        border: 1px solid rgba(108, 75, 42, 0.18);
+        border-radius: 8px;
+        background: rgba(255, 250, 241, 0.92);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .row {
+        display: grid;
+        gap: 9px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .money-input {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        min-height: 64px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      .prefix {
+        display: grid;
+        min-width: 70px;
+        height: 100%;
+        place-items: center;
+        border-right: 1px solid var(--line);
+        background: #f3eadb;
+        color: var(--brand-dark);
+        font-size: 1.05rem;
+        font-weight: 900;
+      }
+
+      input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        padding: 16px 14px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 1.55rem;
+        font-weight: 800;
+        outline: 0;
+      }
+
+      input::placeholder {
+        color: #b8a995;
+      }
+
+      .swap-wrap {
+        display: flex;
+        justify-content: center;
+        margin: 12px 0;
+      }
+
+      .swap {
+        width: 48px;
+        height: 48px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--brand);
+        color: #fff;
+        box-shadow: 0 10px 20px rgba(108, 75, 42, 0.24);
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+
+      .swap:active {
+        transform: translateY(1px) scale(0.98);
+      }
+
+      .swap svg {
+        width: 24px;
+        height: 24px;
+        vertical-align: middle;
+      }
+
+      .meta {
+        display: grid;
+        gap: 10px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+
+      .rate {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .rate strong {
+        color: var(--brand-dark);
+        font-size: 1.04rem;
+      }
+
+      .status {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.35;
+      }
+
+      .refresh {
+        min-height: 42px;
+        border: 1px solid rgba(27, 117, 98, 0.25);
+        border-radius: 8px;
+        background: #e8f3ef;
+        color: var(--accent);
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .refresh:disabled {
+        cursor: wait;
+        opacity: 0.68;
+      }
+
+      .install-note {
+        margin: 14px 2px 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.4;
+      }
+
+      @media (min-width: 560px) {
+        main {
+          padding: 36px;
+        }
+
+        .converter {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="app" aria-label="Conversor de moneda">
+        <header class="header">
+          <p class="eyebrow">PEN / EUR</p>
+          <h1>Conversor Soles Euros</h1>
+          <p class="subtitle">Convierte al instante con el último tipo de cambio disponible, incluso sin conexión.</p>
+        </header>
+
+        <form class="converter" autocomplete="off">
+          <div class="row">
+            <div class="field">
+              <label id="fromLabel" for="fromAmount">Soles Peruanos</label>
+              <div class="money-input">
+                <span class="prefix" id="fromPrefix">S/</span>
+                <input id="fromAmount" inputmode="decimal" type="text" placeholder="0.00" aria-labelledby="fromLabel">
+              </div>
+            </div>
+
+            <div class="swap-wrap">
+              <button class="swap" type="button" id="swapButton" aria-label="Invertir conversión">
+                <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 7h11l-4-4"></path>
+                  <path d="M17 17H6l4 4"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="field">
+              <label id="toLabel" for="toAmount">Euros</label>
+              <div class="money-input">
+                <span class="prefix" id="toPrefix">EUR</span>
+                <input id="toAmount" inputmode="decimal" type="text" placeholder="0.00" aria-labelledby="toLabel">
+              </div>
+            </div>
+          </div>
+
+          <div class="meta">
+            <div class="rate">
+              <span>Tipo de cambio</span>
+              <strong id="rateText">1 EUR = S/ 4.10</strong>
+            </div>
+            <p class="status" id="statusText">Usando tipo de respaldo hasta actualizar.</p>
+            <button class="refresh" type="button" id="refreshButton">Actualizar tipo de cambio</button>
+          </div>
+        </form>
+
+        <p class="install-note">En iPhone: compartir -> Agregar a pantalla de inicio.</p>
+      </section>
+    </main>
+
+    <script>
+      const FALLBACK_RATE = 4.10;
+      const STORAGE_KEY = "conversor-soles-euros-rate";
+      const API_URL = "https://open.er-api.com/v6/latest/EUR";
+      const currency = {
+        PEN: { label: "Soles Peruanos", prefix: "S/" },
+        EUR: { label: "Euros", prefix: "EUR" }
+      };
+
+      const state = {
+        from: "PEN",
+        to: "EUR",
+        rate: FALLBACK_RATE,
+        source: "respaldo"
+      };
+
+      const els = {
+        fromAmount: document.querySelector("#fromAmount"),
+        toAmount: document.querySelector("#toAmount"),
+        fromLabel: document.querySelector("#fromLabel"),
+        toLabel: document.querySelector("#toLabel"),
+        fromPrefix: document.querySelector("#fromPrefix"),
+        toPrefix: document.querySelector("#toPrefix"),
+        swapButton: document.querySelector("#swapButton"),
+        refreshButton: document.querySelector("#refreshButton"),
+        rateText: document.querySelector("#rateText"),
+        statusText: document.querySelector("#statusText")
+      };
+
+      function parseAmount(value) {
+        const normalized = value.replace(",", ".").replace(/[^\d.]/g, "");
+        const firstDot = normalized.indexOf(".");
+        const cleaned = firstDot === -1
+          ? normalized
+          : normalized.slice(0, firstDot + 1) + normalized.slice(firstDot + 1).replace(/\./g, "");
+        return Number.parseFloat(cleaned);
+      }
+
+      function formatMoney(value) {
+        if (!Number.isFinite(value)) return "0.00";
+        return new Intl.NumberFormat("es-PE", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(value);
+      }
+
+      function loadStoredRate() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (saved && Number.isFinite(saved.rate) && saved.rate > 0) {
+            state.rate = saved.rate;
+            state.source = "guardado";
+          }
+        } catch {
+          state.rate = FALLBACK_RATE;
+          state.source = "respaldo";
+        }
+      }
+
+      function saveRate(rate) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          rate,
+          savedAt: new Date().toISOString()
+        }));
+      }
+
+      function updateLabels() {
+        els.fromLabel.textContent = currency[state.from].label;
+        els.toLabel.textContent = currency[state.to].label;
+        els.fromPrefix.textContent = currency[state.from].prefix;
+        els.toPrefix.textContent = currency[state.to].prefix;
+      }
+
+      function updateRateText() {
+        els.rateText.textContent = `1 EUR = S/ ${state.rate.toFixed(2)}`;
+        if (state.source === "api") {
+          els.statusText.textContent = "Tipo de cambio actualizado desde internet.";
+        } else if (state.source === "guardado") {
+          els.statusText.textContent = "Sin actualización reciente. Usando el último tipo guardado.";
+        } else {
+          els.statusText.textContent = "Sin tipo guardado. Usando respaldo: 1 EUR = S/ 4.10.";
+        }
+      }
+
+      function convertFromInput() {
+        const amount = parseAmount(els.fromAmount.value);
+        if (!Number.isFinite(amount)) {
+          els.toAmount.value = "0.00";
+          return;
+        }
+
+        const result = state.from === "EUR" ? amount * state.rate : amount / state.rate;
+        els.toAmount.value = formatMoney(result);
+      }
+
+      function convertToInput() {
+        const amount = parseAmount(els.toAmount.value);
+        if (!Number.isFinite(amount)) {
+          els.fromAmount.value = "0.00";
+          return;
+        }
+
+        const result = state.to === "EUR" ? amount * state.rate : amount / state.rate;
+        els.fromAmount.value = formatMoney(result);
+      }
+
+      async function fetchRate() {
+        els.refreshButton.disabled = true;
+        els.refreshButton.textContent = "Actualizando...";
+        try {
+          const response = await fetch(API_URL, { cache: "no-store" });
+          if (!response.ok) throw new Error("No se pudo leer el tipo de cambio.");
+          const data = await response.json();
+          const rate = Number(data && data.rates && data.rates.PEN);
+          if (!Number.isFinite(rate) || rate <= 0) throw new Error("Respuesta inválida.");
+          state.rate = rate;
+          state.source = "api";
+          saveRate(rate);
+        } catch {
+          if (state.source === "api") state.source = "guardado";
+        } finally {
+          updateRateText();
+          convertFromInput();
+          els.refreshButton.disabled = false;
+          els.refreshButton.textContent = "Actualizar tipo de cambio";
+        }
+      }
+
+      function swapCurrencies() {
+        const previousResult = els.toAmount.value;
+        state.from = state.from === "PEN" ? "EUR" : "PEN";
+        state.to = state.to === "PEN" ? "EUR" : "PEN";
+        updateLabels();
+        els.fromAmount.value = previousResult;
+        convertFromInput();
+      }
+
+      function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+        }
+      }
+
+      loadStoredRate();
+      updateLabels();
+      updateRateText();
+      els.fromAmount.value = "100.00";
+      convertFromInput();
+      fetchRate();
+      registerServiceWorker();
+
+      els.fromAmount.addEventListener("input", convertFromInput);
+      els.toAmount.addEventListener("input", convertToInput);
+      els.swapButton.addEventListener("click", swapCurrencies);
+      els.refreshButton.addEventListener("click", fetchRate);
+    </script>
+  </body>
+</html>
