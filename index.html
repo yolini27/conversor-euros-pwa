@@ -410,7 +410,7 @@
           if (state.source === "api") state.source = "guardado";
         } finally {
           updateRateText();
-          convertFromInput();
+          if (els.fromAmount.value.trim() !== "") convertFromInput();
           els.refreshButton.disabled = false;
           els.refreshButton.textContent = "Actualizar tipo de cambio";
         }
@@ -434,8 +434,6 @@
       loadStoredRate();
       updateLabels();
       updateRateText();
-      els.fromAmount.value = "100.00";
-      convertFromInput();
       fetchRate();
       registerServiceWorker();
 
